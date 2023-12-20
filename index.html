@@ -1,0 +1,110 @@
+
+<html lang="en">
+
+	<head>
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+
+		<style>
+			html,
+			body {
+				padding: 0;
+				margin: 0;
+			}
+		</style>
+
+		<script>
+			let fullscreen = false;
+			let blockSize = 64;
+
+			function resizeCanvas() {
+				const canvas = $("#canvas");
+
+				canvas.width($(window).width());
+				canvas.height($(window).height());
+
+				blockSize = canvas.width() / 4;
+
+				/* console.log(`canvas width:${canvas.width()}, height:${canvas.height()} | blocksize:${blockSize}`); */
+			}
+
+			function initBurnFix() {
+				setInterval(draw, 100);
+			}
+
+			function draw() {
+				const canvas = $("canvas")[0];
+				const context = canvas.getContext("2d");
+
+				const imageData = context.createImageData(blockSize, blockSize);
+
+				for (let i = 0; i < blockSize * blockSize; i++) {
+					const p = i * 4;
+					imageData.data[p + 0] = Math.random() >= 0.5 ? 255 : 0;
+					imageData.data[p + 1] = Math.random() >= 0.5 ? 255 : 0;
+					imageData.data[p + 2] = Math.random() >= 0.5 ? 255 : 0;
+					imageData.data[p + 3] = 255;
+				}
+
+				for (let y = 0; y < canvas.height; y += blockSize) {
+					for (let x = 0; x < canvas.width; x += blockSize) {
+						context.putImageData(imageData, x, y);
+					}
+				}
+			}
+
+			function toggleFullscreen() {
+				if (fullscreen) {
+					cancelFullscreen();
+				} else {
+					setFullscreen();
+				}
+
+				setTimeout(() => {
+					resizeCanvas();
+				}, 250);
+			}
+
+			function setFullscreen() {
+				const element = $("#fixScreen")[0];
+
+				if (element.mozRequestFullScreen) {
+					element.mozRequestFullScreen();
+					fullscreen = true;
+				} else if (element.webkitRequestFullScreen) {
+					element.webkitRequestFullScreen();
+					fullscreen = true;
+				}
+			}
+
+			function cancelFullscreen() {
+				if (document.exitFullscreen) {
+					document.exitFullscreen();
+				} else if (document.mozCancelFullScreen) {
+					document.mozCancelFullScreen();
+				} else if (document.webkitCancelFullScreen) {
+					document.webkitCancelFullScreen();
+				}
+
+				fullscreen = false;
+			}
+
+			$(function () {
+				resizeCanvas();
+				initBurnFix();
+			});
+		</script>
+	</head>
+
+	<body>
+
+		<div id="fixScreen" onclick="toggleFullscreen()">
+
+			<div id="canvasFrame">
+				<canvas id="canvas"></canvas>
+			</div>
+
+		</div>
+
+	</body>
+
+</html>
